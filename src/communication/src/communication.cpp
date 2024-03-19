@@ -1,7 +1,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "common/protocol_rs.h"
 
-#define DEVICE "/dev/ttyACM0"
+#define DEVICE "/dev/ttyACM1"
 
 class Communication : public ProtocolRS, public rclcpp::Node
 {
@@ -13,12 +13,7 @@ class Communication : public ProtocolRS, public rclcpp::Node
 
         void timer_callback()
         {
-            msg_agx2c_t msg;
-            msg.vel[0] = 0.0;
-            msg.vel[1] = 0.0;
-            msg.vel[2] = 0.0;
-
-            rs_send(MSG_AGX2C_ID, (uint8_t*)&msg, sizeof(msg));
+            printf("yaw: %f, pitch: %f, roll: %f\n", msg_imu_info.yaw, msg_imu_info.pitch, msg_imu_info.roll);
         }
 
     private:
@@ -32,7 +27,7 @@ void serial_init()
 {
     const char *password = "123"; // 设置密码
   // 要执行的命令
-    const char *cmd = "sudo -S chmod 777 /dev/ttyACM0"; 
+    const char *cmd = "sudo -S chmod 777 /dev/ttyACM1"; 
     // 打开管道以与sudo交互
     FILE *pipe = popen(cmd, "w");
     if (!pipe) {

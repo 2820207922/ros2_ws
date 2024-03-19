@@ -55,8 +55,8 @@ typedef enum
 	REMOTE_CONTROL_ID = 0x0304,
 	CUSTOM_CLIENT_DATA_ID = 0x0306,
 
-	MSG_C2AGX_ID = 0x0401,
-	MSG_AGX2C_ID = 0x0402
+	MSG_IMU_INFO_ID = 0x0401,
+	MSG_MOVE_CMD_ID = 0x0402
 } rs_cmd_id_e;
 
 typedef struct __packed
@@ -365,15 +365,19 @@ typedef struct __packed
 // miniPC msg
 typedef struct __packed
 {
-	float accel[3];
-	float gyro[3];
-	float mag[3];
-} msg_c2agx_t;
+	float quat[4];
+	float yaw;
+	float pitch;
+	float roll;
+} msg_imu_info_t;
 
 typedef struct __packed
 {
-	float vel[3];
-} msg_agx2c_t;
+	float vx;
+	float vy;
+	float vw;
+	uint8_t top_flag;
+} msg_move_cmd_t;
 
 class ProtocolRS: public Uart
 {
@@ -387,16 +391,7 @@ class ProtocolRS: public Uart
         void *rs_thread();
         void *get_rs_data(rs_cmd_id_e cmd_id);
         void *get_rs_data_interaction(rs_cmd_id_e cmd_id);
-
-    private:
-    
-        std::thread rs_thread_handle;
-
-        uint8_t send_buf[256];
-        uint8_t recv_buf[256];
-        uint32_t recv_index = 0;
-        frame_header_t recv_header, send_header;
-        
+		
         game_status_t game_status;
         game_result_t game_result;
         game_robot_HP_t game_robot_HP;
@@ -440,8 +435,17 @@ class ProtocolRS: public Uart
         remote_control_t remote_control;
         custom_client_data_t custom_client_data;
 
-        msg_c2agx_t msg_c2agx;
-        msg_agx2c_t msg_agx2c;
+		msg_imu_info_t msg_imu_info;
+		msg_move_cmd_t msg_move_cmd;
+
+    private:
+    
+        std::thread rs_thread_handle;
+
+        uint8_t send_buf[256];
+        uint8_t recv_buf[256];
+        uint32_t recv_index = 0;
+        frame_header_t recv_header, send_header;
 };
 
 #endif // PROTOCOL_RS_H

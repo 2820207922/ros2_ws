@@ -126,10 +126,12 @@ int ProtocolRS::rs_read(const uint8_t data)
 	}
 	else if (recv_index == recv_header.data_length + 9u)
 	{
+		// printf("recv_index: %d\n", recv_index);
 		if (Verify_CRC16_Check_Sum((uint8_t *)recv_buf, recv_header.data_length + 9))
 		{
 			uint16_t cmd_id;
 			memcpy(&cmd_id, recv_buf + 5, 2);
+			// printf("cmd_id: %d\n", cmd_id);
 			switch (cmd_id)
 			{
                 case GAME_STATUS_ID:
@@ -254,13 +256,14 @@ int ProtocolRS::rs_read(const uint8_t data)
 				case CUSTOM_CLIENT_DATA_ID:
 					memcpy(&custom_client_data, recv_buf + 7, recv_header.data_length);
 					break;
-
-				case MSG_C2AGX_ID:
-					memcpy(&msg_c2agx, recv_buf + 7, recv_header.data_length);
-					break;
 				
-				case MSG_AGX2C_ID:
-					memcpy(&msg_agx2c, recv_buf + 7, recv_header.data_length);
+				case MSG_IMU_INFO_ID:
+					memcpy(&msg_imu_info, recv_buf + 7, recv_header.data_length);
+					// printf("yaw: %f, pitch: %f, roll: %f\n", msg_imu_info.yaw, msg_imu_info.pitch, msg_imu_info.roll);
+					break;
+
+				case MSG_MOVE_CMD_ID:
+					memcpy(&msg_move_cmd, recv_buf + 7, recv_header.data_length);
 					break;
 
                 default:
@@ -504,15 +507,13 @@ void *ProtocolRS::get_rs_data(rs_cmd_id_e cmd_id)
 			ptr = malloc(sizeof(custom_client_data_t));
 			memcpy(ptr, &custom_client_data, sizeof(custom_client_data_t));
 			break;
-
-		case MSG_C2AGX_ID:
-			ptr = malloc(sizeof(msg_c2agx_t));
-			memcpy(ptr, &msg_c2agx, sizeof(msg_c2agx_t));
+		
+		case MSG_IMU_INFO_ID:
+			memcpy(&msg_imu_info, recv_buf + 7, recv_header.data_length);
 			break;
 
-		case MSG_AGX2C_ID:
-			ptr = malloc(sizeof(msg_agx2c_t));
-			memcpy(ptr, &msg_agx2c, sizeof(msg_agx2c_t));
+		case MSG_MOVE_CMD_ID:
+			memcpy(&msg_move_cmd, recv_buf + 7, recv_header.data_length);
 			break;
 
         default:
