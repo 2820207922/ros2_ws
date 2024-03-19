@@ -15,10 +15,10 @@ class Communication : public ProtocolRS, public rclcpp::Node
         {
             // printf("yaw: %f, pitch: %f, roll: %f\n", msg_imu_info.yaw, msg_imu_info.pitch, msg_imu_info.roll);
             msg_move_cmd_t move_cmd;
-            move_cmd.vx = 1.1;
-            move_cmd.vy = 1.2;
-            move_cmd.vw = 1.3;
-            move_cmd.top_flag = 0;
+            move_cmd.vx = 0.1; // 区间[-1.0,1.0]
+            move_cmd.vy = 0.2; // 区间[-1.0,1.0]
+            move_cmd.vw = 0.3; // 区间[-1.0,1.0]
+            move_cmd.top_flag = 0; // 区间{0,1}
             rs_send(MSG_MOVE_CMD_ID, (uint8_t*)&move_cmd, sizeof(msg_move_cmd_t));
         }
 
